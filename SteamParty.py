@@ -10,6 +10,7 @@ from colorama import Fore, Style
 from time import sleep
 
 class SteamGrabber:
+    """Interface for fetching user/application data from the Steam servers"""
     def __init__(self):
         # Format: appid : name
         self._games = {}
@@ -25,6 +26,19 @@ class SteamGrabber:
             logging.warning("No local cache found, fetching data may take some time")
 
     def _fetch(self, url):
+        """Fetch content from given URL.
+
+        Parameters
+        ---------
+        url : str
+            URL to fetch content from
+
+        Returns
+        -------
+        str
+            Fetched content of the given URL converted to UTF-8 string
+
+        """
         try:
             res = requests.get(url)
         except:
@@ -40,6 +54,20 @@ class SteamGrabber:
         return None
 
     def get_app_info(self, appid):
+        """Get information about application specified by its ID.
+
+        Parameters
+        ---------
+        appid : int/str
+            Application ID
+
+        Returns
+        -------
+        bool
+            True if fetching and parsing application info succeeds,
+            False otherwise
+
+        """
         url = self._app_template.format(appid)
         logging.debug(f"Fetching info for appid {appid}")
         logging.debug(url)
@@ -75,12 +103,37 @@ class SteamGrabber:
         return True
 
     def get_game_info(self, appid):
+        """Get application info from the local cache.
+
+        Parameters
+        ----------
+        appid : int/str
+            Application ID
+
+        Returns
+        -------
+        dict
+            Application info dictionary if it exists in the local cache,
+            None otherwise
+        """
         if appid in self._games:
             return self._games[appid]
         else:
             return None
 
     def get_games(self, userid):
+        """Get games from a user profile specified by given ID.
+
+        Parameters
+        ----------
+        userid : str
+            Either custom profile name or numeric ID
+
+        Returns
+        -------
+        set
+            Set of application IDs on success, None otherwise
+        """
         if userid.isdigit():
             type_ = "profiles"
         else:
@@ -95,6 +148,7 @@ class SteamGrabber:
         if data is None:
             return None
 
+        # Parse JSON string with games from the HTML content (oh yes)
         match = re.search(self._content_rx, data)
         if match is None:
             logging.error("Failed to parse response data")
@@ -109,6 +163,9 @@ class SteamGrabber:
 
         games = []
 
+        # Get application ID and application name from the JSON
+        # If the application ID does not exist in the local cache,
+        # fetch additional info from the Steam store
         for game in jdata:
             appid = str(game["appid"])
             if appid not in self._games:
@@ -157,6 +214,7 @@ if __name__ == "__main__":
 
     common = set.intersection(*users.values())
 
+    # Simple lambdas for colored text (used for yes/no flags)
     red = lambda x: "{}{:3}{}".format(Fore.RED, x, Style.RESET_ALL)
     green = lambda x: "{}{:3}{}".format(Fore.GREEN, x, Style.RESET_ALL)
 
