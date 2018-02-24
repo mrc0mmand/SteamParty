@@ -39,38 +39,6 @@ class SteamGrabber:
 
         return None
 
-    def _parse_response(self, data):
-        match = re.search(self._content_rx, data)
-        if match is None:
-            logging.error("Failed to parse response data")
-            print(data)
-            return None
-
-        try:
-            jdata = json.loads(match.group(1))
-        except:
-            logging.exception("Failed to parse JSON data")
-            return None
-
-        games = []
-
-        for game in jdata:
-            appid = str(game["appid"])
-            if appid not in self._games:
-                self._games[appid] = {}
-                self._games[appid]["name"] = game["name"]
-                sleep(0.2)
-                if not self.get_app_info(appid):
-                    del self._games[appid]
-                    continue
-
-            games.append(appid)
-
-        with open(".SteamParty.cache", "wb") as fout:
-            pickle.dump(self._games, fout, pickle.HIGHEST_PROTOCOL)
-
-        return set(games)
-
     def get_app_info(self, appid):
         url = self._app_template.format(appid)
         logging.debug(f"Fetching info for appid {appid}")
@@ -126,9 +94,37 @@ class SteamGrabber:
 
         if data is None:
             return None
-        else:
-            return self._parse_response(data)
 
+        match = re.search(self._content_rx, data)
+        if match is None:
+            logging.error("Failed to parse response data")
+            print(data)
+            return None
+
+        try:
+            jdata = json.loads(match.group(1))
+        except:
+            logging.exception("Failed to parse JSON data")
+            return None
+
+        games = []
+
+        for game in jdata:
+            appid = str(game["appid"])
+            if appid not in self._games:
+                self._games[appid] = {}
+                self._games[appid]["name"] = game["name"]
+                sleep(0.2)
+                if not self.get_app_info(appid):
+                    del self._games[appid]
+                    continue
+
+            games.append(appid)
+
+        with open(".SteamParty.cache", "wb") as fout:
+            pickle.dump(self._games, fout, pickle.HIGHEST_PROTOCOL)
+
+        return set(games)
 
 if __name__ == "__main__":
     # Setup logging
