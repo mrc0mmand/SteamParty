@@ -144,7 +144,8 @@ if __name__ == "__main__":
                     logging.getLevelName(logging.CRITICAL), Style.RESET_ALL))
 
     if len(sys.argv[1:]) == 0:
-        logging.critical("Missing arguments (user IDs)")
+        print("Usage: {} steam_id steam_id2 ...".format(sys.argv[0]))
+        sys.exit(0)
 
     grabber = SteamGrabber()
     # Format: username : games_set
