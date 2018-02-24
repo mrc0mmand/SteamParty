@@ -217,6 +217,7 @@ if __name__ == "__main__":
     # Simple lambdas for colored text (used for yes/no flags)
     red = lambda x: "{}{:3}{}".format(Fore.RED, x, Style.RESET_ALL)
     green = lambda x: "{}{:3}{}".format(Fore.GREEN, x, Style.RESET_ALL)
+    decide = lambda x: green("yes") if x else red("no")
 
     for appid in sorted(common):
         game = grabber.get_game_info(appid)
@@ -226,12 +227,12 @@ if __name__ == "__main__":
 
         try:
             print("(Win: {}, Linux: {}, OS/X: {}) [F2P: {}, MP: {}, Co-op: {}] {}".format(
-                    green("yes") if game["platforms"]["windows"] else red("no"),
-                    green("yes") if game["platforms"]["linux"] else red("no"),
-                    green("yes") if game["platforms"]["mac"] else red("no"),
-                    green("yes") if game["is_free"] else red("no"),
-                    green("yes") if game["mp"] else red("no"),
-                    green("yes") if game["coop"] else red("no"),
+                    decide(game["platforms"]["windows"]),
+                    decide(game["platforms"]["linux"]),
+                    decide(game["platforms"]["mac"]),
+                    decide(game["is_free"]),
+                    decide(game["mp"]),
+                    decide(game["coop"]),
                     game["name"]))
         except:
             logging.exception("Failed to print game data")
