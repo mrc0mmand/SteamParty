@@ -152,7 +152,9 @@ class SteamGrabber:
         match = re.search(self._content_rx, data)
         if match is None:
             logging.error("Failed to parse response data")
-            print(data)
+            logging.warn("This may be caused by your profile privacy settings "
+                    "(Game details is set to Private/Friends Only)")
+            logging.debug(data)
             return None
 
         try:
@@ -211,6 +213,10 @@ if __name__ == "__main__":
             users[user] = games
         else:
             logging.warning(f"Missing data for user {user}")
+
+    if not users:
+        logging.error("Failed to fetch users data, can't continue...")
+        sys.exit(1)
 
     common = set.intersection(*users.values())
 
