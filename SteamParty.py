@@ -15,8 +15,8 @@ class SteamGrabber:
     def __init__(self):
         # Format: appid : name
         self._games = {}
-        self._profile_template = "http://steamcommunity.com/{}/{}/games/?tab=all"
-        self._app_template = "http://store.steampowered.com/api/appdetails?appids={}"
+        self._profile_template = "https://steamcommunity.com/{}/{}/games/?tab=all"
+        self._app_template = "https://store.steampowered.com/api/appdetails?appids={}"
         self._content_rx = re.compile(r"var rgGames[ ]*=[ ]*(\[.+\])")
 
         # If a game cache exists try to load it
